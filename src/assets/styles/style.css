@@ -39,7 +39,6 @@
     opacity: 0.4
 }
 .send-button {
-    background: #5A98D0;
     box-shadow: 5px 20px 50px rgba(16, 112, 177, 0.2);
     border-radius: 10px;
     font-weight: 500;
@@ -47,5 +46,12 @@
     line-height: 26px;
     text-align: center;
     color: #FFFFFF;
-    text-transform: uppercase
+    text-transform: uppercase;
+    background: rgb(77,13,255);
+    background: linear-gradient(90deg, rgba(77,13,255,1) 0%, rgba(168,44,244,1) 100%);
+
+}
+.contacts-button {
+
+
 }
