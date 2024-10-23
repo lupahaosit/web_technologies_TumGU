@@ -47,11 +47,13 @@
     text-align: center;
     color: #FFFFFF;
     text-transform: uppercase;
-    background: rgb(77,13,255);
-    background: linear-gradient(90deg, rgba(77,13,255,1) 0%, rgba(168,44,244,1) 100%);
+    background: rgb(77, 13, 255);
+    background: linear-gradient(90deg, rgba(77, 13, 255, 1) 0%, rgba(168, 44, 244, 1) 100%);
 
 }
-.contacts-button {
-
-
+.contacts-form-back-photo{
+    background-image: url("2af6d1a50a1b2d08d517841849a61bf1.jpg");
+}
+@font-face {
+    font-family: '';
 }
