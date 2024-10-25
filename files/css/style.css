@@ -1,0 +1,18 @@
+ul{
+    list-style-type: none;
+    padding-inline-start: unset;
+    margin-block-end: unset;
+
+}
+p{
+    margin-block-end: unset;
+}
+.first-block-back{
+    background-color: #f3f4f8;
+}
+
+.first-block-back-image{
+    background-image: url("/web_technologies_TumGU/files/images/Group 1.png");
+    background-position: 115% 50%;
+    background-repeat: no-repeat;
+}
