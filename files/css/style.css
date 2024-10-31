@@ -11,8 +11,14 @@ p{
     background-color: #f3f4f8;
 }
 
+input {
+    border: 0;
+}
+hr{
+    margin: 0 !important;
+}
 .first-block-back-image{
     background-image: url("/web_technologies_TumGU/files/images/Group 1.png");
-    background-position: 115% 50%;
+    background-position: 115% 0%;
     background-repeat: no-repeat;
 }
