@@ -17,10 +17,83 @@ input {
 hr{
     margin: 0 !important;
 }
+.first-block-back-image-first{
+    position: relative;
+}
+
+.request-form-block{
+    width: 60%;
+}
+
+@media (max-width: 768px){
+     .request-form-block {
+         width: 65%;
+     }
+
+    .first-block-back-image{
+        position: relative;
+        background-image: url("/web_technologies_TumGU/files/images/Group 1.png");
+        background-position: 0% 0%;
+        background-repeat: no-repeat;
+        background-size: 80% auto
+    }
+}
+
 .first-block-back-image{
+    position: relative;
     background-image: url("/web_technologies_TumGU/files/images/Group 1.png");
-    background-position: 150% 0%;
+    background-position: 100% 0%;
     background-repeat: no-repeat;
+    background-size: 50% auto
+}
+
+.burger-image{
+    width: 25px;
+    height: 25px;
+}
+
+.first-block-back-image-first {
+    position: relative;
+    margin-top: 5%;
+    background-image: url("/web_technologies_TumGU/files/Изображения%20для%20бэкграунда/column-left.webp"), url("/web_technologies_TumGU/files/Изображения%20для%20бэкграунда/column-right.webp");
+    background-position: 70% 0%, 95% 0%; /* Начальная позиция: левая снизу, правая сверху */
+    background-repeat: no-repeat;
+    background-size: 30% auto, 20% auto;
+    animation: moveLeft 5s linear infinite, moveLeft 5s linear infinite; /* Анимации для обеих картинок */
+}
+
+/* Анимация для левой картинки (движется снизу вверх) */
+@keyframes moveLeft {
+    0% {
+        background-position: 70% 100%; /* Начало (снизу) */
+    }
+    100% {
+        background-position: 70% 0%; /* Конец (вверху) */
+    }
+}
+
+/* Анимация для правой картинки (движется сверху вниз) */
+@keyframes moveRight {
+    0% {
+        background-position: 95% 0%; /* Начало (сверху) */
+    }
+    100% {
+        background-position: 95% 100%; /* Конец (внизу) */
+    }
+}
+
+.development-list-items {
+    position: relative; /* Для работы с псевдоэлементом */
+    padding-right: 20px; /* Отступ для текста, чтобы символ '>' не перекрывал его */
+}
+
+
+.development-list-items:hover {
+    font-weight: bold; /* Полужирный текст при наведении */
+    color: black; /* Цвет текста остается черным */
+    text-decoration-line: underline;
+    text-underline-offset: 5px;
+    text-decoration-color: blue;
 }
 
 
