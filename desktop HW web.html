@@ -8,12 +8,34 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="container">
+
 <div class="first-block-back  ps-md-4 pe-md-4 first-block-back-image">
+
+    <div class="collapse position-absolute h-100 w-100" id="collapseExample">
+        <a class="position-absolute exit-collapse-button" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample" >
+            <img src="files/images/add_36.png">
+        </a>
+        <div class=" bg-white h-100 w-100 d-flex flex-column burger-padding align-items-center">
+            <p class="h2 text-primary pt-5">IT WEBSITE</p>
+            <ul class="d-flex flex-column mb-0 ps-0 w-100 pt-4 align-items-center">
+                <li class="pb-4 h4">Service</li>
+                <li class="pb-4 h4">Media</li>
+                <li class="pb-4 h4">Cases</li>
+                <li class="pb-4 h4">FAQ</li>
+                <li class="pb-5 h4">Contacts</li>
+            </ul>
+            <div class="d-flex  text-primary">
+                <p class="d-block mb-0"><img src="files/list%20of%20images/smartphone_outline_24_blue.png">+7 (111) 111 11 11 &nbsp +7 (111) 111 11 11</p>
+                <p class="mb-0 ps-3 "><img class="me-1" src="files/list%20of%20images/mail_outline_24_blue.png">itcompany@mail.com</p>
+
+            </div>
+        </div>
+    </div>
     <div class="pt-3 pb-3 d-flex justify-content-center w-100 ">
         <header class="row border border-light rounded bg-white pt-3 pb-3 col-md-11 w-100 ">
             <div class="d-flex justify-content-around align-items-center ">
-                <div class="d-md-none "><img class="burger-image" src="files/images/Group%20625890.png"></div>
-                <div class="h5 mb-0 text-primary ms-5 ps-5">IT WEBSITE</div>
+                <div class="d-md-none "><a  class="" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"><img class="burger-image" src="files/images/Group%20625890.png"></a></div>
+                <div class="h5 mb-0 text-primary ms-5 ps-5 ms-md-0 ps-md-0">IT WEBSITE</div>
 
                 <ul class="d-none d-md-flex mb-0 ps-0">
                     <li class="pe-3">Service</li>
@@ -30,16 +52,16 @@
             </div>
         </header>
     </div>
-        <div class=" ps-3 ps-md-0 pe-3 ps-md-0 pb-3 pb-5">
-            <div class="main-text-block col-8 col-md-6">
+        <div class=" ps-3 ps-md-0 pe-3 ps-md-0 pb-1 pb-md-5">
+            <div class="main-text-block col-8 col-md-5">
                 <h3>Development of <span class="text-primary">mobile applications</span> and <span class="text-primary">web services</span> of any complexity</h3>
                 <p class="pt-3">We create mobile applications for iOS, Android that transfer your business to mobile applications of your customers' devices</p>
             </div>
-            <div class="request-form-block mt-5 rounded bg-white ps-3 pt-4 pe-3 mb-5">
+            <div class="request-form-block mt-5 rounded  bg-white ps-3 pt-4 pe-3 mb-md-5">
                 <p ><b>Leave your contacts and we will call you back
                     within 30 minutes</b></p>
                 <form  class="d-flex mt-4 pb-4 justify-content-around flex-md-row flex-column ">
-                    <div>
+                    <div >
                         <p class="mb-0 text-secondary">Phone Number</p>
                         <input class="border-bottom" placeholder="+7 (111) 111-11-11" >
                     </div>
@@ -54,25 +76,31 @@
 
 </div>
 <hr>
-<div class="d-flex d-row pt-5"><!--белый блок с текстами-->
-    <div class="pe-3 me-5 development-cycle-info-block col-md-5 ">
-        <h2>Full development cycle</h2>
-        <p class="pt-4">We use proven technologies</p>
-        <h3 class="pb-2">Web</h3>
-        <p class="pb-2">PHP / Javascript / Node.JS / Web Socket / Socket.io / Vue.js/ Nuxt / MySQL / Laravel / GO lang / django / Python</p>
-        <h3 class="pb-2">Mobile</h3>
-        <p class="pb-5">Swift / Kotlin / Alamofire / Firebase / CoreData / Room / Realm / Coroutine / RxJava / RxSwift / Unit Test / Navigation</p>
+<div class=" pt-5"><!--белый блок с текстами-->
+    <div class="w-100 pb-3">
+        <h3>Full development cycle</h3>
+        <p class="pt-2">We use proven technologies</p>
     </div>
-    <div class="ps-5 pt-2 ms-5 development-IOS-info-block">
-        <ul>
-            <li class="pb-4 development-list-items">iOS  development <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
-            <li class="pb-4 development-list-items">Android  <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
-            <li class="pb-4 development-list-items">Web development <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
-            <li class="pb-4 development-list-items">UI/UX design <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
-            <li class="pb-4 development-list-items">Testing <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
-            <li class="pb-4 development-list-items">Launch <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
-            <li class="pb-4 development-list-items">IT consulting <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
-        </ul>
+    <div class="d-flex flex-row">
+        <div class="d-flex flex-column col-6 col-md-5">
+            <div class="pe-3 me-md-5 me-0 development-cycle-info-block  ">
+                <h4 class="pb-2">Web</h4>
+                <p class="pb-2">PHP / Javascript / Node.JS / Web Socket / Socket.io / Vue.js/ Nuxt / MySQL / Laravel / GO lang / django / Python</p>
+                <h4 class="pb-2">Mobile</h4>
+                <p class="pb-5">Swift / Kotlin / Alamofire / Firebase / CoreData / Room / Realm / Coroutine / RxJava / RxSwift / Unit Test / Navigation</p>
+            </div>
+        </div>
+        <div class="ps-md-5 ps-4 pt-2 ms-5 development-IOS-info-block ">
+            <ul>
+                <li class="pb-4 development-list-items">iOS  development <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
+                <li class="pb-4 development-list-items">Android  <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
+                <li class="pb-4 development-list-items">Web development <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
+                <li class="pb-4 development-list-items">UI/UX design <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
+                <li class="pb-4 development-list-items">Testing <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
+                <li class="pb-4 development-list-items">Launch <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
+                <li class="pb-4 development-list-items">IT consulting <img src="files/list%20of%20images/chevron_right_small_24.svg"></li>
+            </ul>
+        </div>
     </div>
 </div>
 <hr>
