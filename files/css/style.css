@@ -21,6 +21,8 @@ hr{
 
 .first-block-back{
     background-color: #f3f4f8;
+    overflow: hidden;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 }
 
 .first-block-back-image-first{
@@ -32,21 +34,18 @@ hr{
 }
 
 .exit-collapse-button{
-    margin-left: 80%;
-    margin-top: 9%;
+    margin-left: 60%;
+    margin-top: 5%;
 }
 
 .burger-padding{
-    padding: 8%;
+    padding-top: 5%;
+    width: 70%;
+    height: 580px;
+
 }
 
-.first-block-back-image{
-    position: relative;
-    background-image: url("/web_technologies_TumGU/files/images/Group 1.png");
-    background-position: 100% 0%;
-    background-repeat: no-repeat;
-    background-size: 50% auto
-}
+
 
 .burger-image{
     width: 25px;
@@ -67,58 +66,126 @@ hr{
 }
 
 
-.first-block-back-image-first {
-    position: relative;
-    margin-top: 5%;
-    background-image: url("/web_technologies_TumGU/files/Изображения%20для%20бэкграунда/column-left.webp"), url("/web_technologies_TumGU/files/Изображения%20для%20бэкграунда/column-right.webp");
-    background-position: 70% 0%, 95% 0%; /* Начальная позиция: левая снизу, правая сверху */
-    background-repeat: no-repeat;
-    background-size: 30% auto, 20% auto;
-    animation: moveLeft 5s linear infinite, moveLeft 5s linear infinite; /* Анимации для обеих картинок */
-}
-
-/* Анимация для левой картинки (движется снизу вверх) */
-@keyframes moveLeft {
-    0% {
-        background-position: 70% 100%; /* Начало (снизу) */
-    }
-    100% {
-        background-position: 70% 0%; /* Конец (вверху) */
-    }
-}
-
-/* Анимация для правой картинки (движется сверху вниз) */
-@keyframes moveRight {
-    0% {
-        background-position: 95% 0%; /* Начало (сверху) */
-    }
-    100% {
-        background-position: 95% 100%; /* Конец (внизу) */
-    }
-}
 
 
-@media (max-width: 767px){
+
+
+
+@media screen and (max-width: 767px) and (min-width: 425px){
     .request-form-block {
         width: 65%;
     }
 
     .first-block-back-image{
+
+        width: 100%;
+        height: 100%;
         position: relative;
-        background-image: url("/web_technologies_TumGU/files/images/Group 1.png");
-        background-position: 170% 50%;
+        background-image: url(/web_technologies_TumGU/files/Изображения%20для%20бэкграунда/column-left.webp), url(/web_technologies_TumGU/files/Изображения%20для%20бэкграунда/column-right.webp);
+        background-position: 25% 86%, 42% 10px;
         background-repeat: no-repeat;
-        background-size: 70% 100%
+        background-size: 21% auto, 12% auto;
+        z-index: 0;
     }
 
+
+
+    .bg-image-size-block{
+        top: -4%;
+        margin-left: 25%;
+        position: absolute;
+        width: 100%;
+        height: 50%;
+        transform: rotate(-15deg);
+        overflow: hidden;
+
+    }
 }
 
-@media (min-width: 768px){
+@media screen and (min-width: 768px){
     .development-IOS-info-block {
         position: relative;
         top: -110px;
     }
-`
+    .bg-image-size-block{
+        top: -15%;
+        margin-left: 30%;
+        position: absolute;
+        width: 100%;
+        height: 50%;
+        transform: rotate(-15deg);
+        overflow: hidden;
+
+    }
+
+    .first-block-back-image{
+
+        width: 100%;
+        height: 100%;
+        position: relative;
+        background-image: url("/web_technologies_TumGU/files/Изображения%20для%20бэкграунда/column-left.webp"), url("/web_technologies_TumGU/files/Изображения%20для%20бэкграунда/column-right.webp");
+        background-position: 17% 0%, 30% 0;
+        background-repeat: no-repeat;
+        background-size: 15% auto, 9% auto;
+        z-index: 0;
+
+    }
+
 
 }
+
+@media screen and (max-width: 424px){
+
+    .request-form-block {
+        width: 100%;
+    }
+
+    .top-input-full-block{
+        padding-top: 7%;
+    }
+
+    .top-block-input{
+        width: 70%;
+    }
+    .top-input-full-block-button{
+        margin-top: 7%
+    }
+    .main-text-block{
+        margin-bottom: 100%;
+    }
+    .burger-padding{
+        padding-top: 0%;
+        width: 95%;
+        height: 520px;
+    }
+
+    .exit-collapse-button{
+        margin-left: 70%;
+        margin-top: 5%;
+    }
+
+    .first-block-back-image{
+
+        width: 100%;
+        height: 100%;
+        position: relative;
+        background-image: url(/web_technologies_TumGU/files/Изображения%20для%20бэкграунда/column-left.webp), url(/web_technologies_TumGU/files/Изображения%20для%20бэкграунда/column-right.webp);
+        background-position: 10% 0%, 89% 0%;
+        background-repeat: no-repeat;
+        background-size: 60% auto, 37% auto;
+        z-index: 0;
+    }
+
+    .bg-image-size-block{
+        top: 22%;
+        margin-left: 13%;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform: rotate(-10deg);
+        overflow: hidden;
+
+    }
+}
+
 
