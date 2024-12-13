@@ -1,0 +1,124 @@
+
+<script>
+
+    const students = [
+       { name: 'Павел', age: 20 },
+       { name: 'Иван', age: 20 },
+       { name: 'Эдем', age: 20 },
+       { name: 'Денис', age: 20 },
+       { name: 'Виктория', age: 20 },
+       { age: 40 },
+    ]
+    const result = pickPropArray(students, 'age')
+    console.log(result) 
+    function pickPropArray(students, attribute){
+        values = []
+        students.forEach(student => {
+            value = student[attribute]
+            if (value !== undefined){
+                values.push(value)
+            }
+        });
+        return values
+    }
+    
+    
+    function createCounter() {
+      let value = 0
+    
+      return function () {
+        value++
+        console.log(value)
+      }
+    }
+    const counter1 = createCounter()
+    counter1() // 1
+    counter1() // 2
+    
+    const counter2 = createCounter()
+    counter2() // 1
+    counter2() // 2
+    
+    const result1 = spinWords( "Привет от Legacy" )
+    console.log(result1) // тевирП от ycageL
+    const result2 = spinWords( "This is a test" )
+    console.log(result2) // This is a test
+    
+    function spinWords(text){
+        splitedWords = text.split(' ')
+        words = []
+        splitedWords.forEach(element => {
+            if  (element.length >= 5){
+                    element = element.split('').reverse().join('')
+            }
+            words.push(element)
+        });
+        return words
+    }
+    nums = [2,7,11,15], target = 9
+    
+    console.log(findSum(nums, target))
+    
+    function findSum(numberArray, target){
+        indexes = []
+        iterator = 0
+        numberArray.forEach(element => {
+            iterator++
+            for (let index = iterator; index < numberArray.length; index++) {
+                secondValue = numberArray[index];
+                if ((element + secondValue) === target) {
+                    indexes.push(iterator-1)
+                    indexes.push(index)
+                }
+            }
+        });
+        return indexes
+    }
+    
+    
+    function findLongestCommonPrefix(strs) {
+        iterator = 0
+        commString = ""
+        b = false;
+        if (strs.length === 0) return "";
+        shortestElement = strs.reduce(function(a, b){
+       
+            return a.length < b.length ? a : b
+        })
+    
+        strs.splice(strs.indexOf(shortestElement), 1)
+    
+        shortestElement.split('').forEach(char => {
+            iterator++
+            b = true
+            for (let index = iterator; index < shortestElement.length; index++) {
+               char+=shortestElement[index]
+               strs.forEach(element => {
+                if(!element.includes(char)){
+                    b = false
+                    console.log("not")
+                }
+            })
+                if(!b)
+                {
+                    break
+                }else
+                {
+                    if(char.length > commString.length){
+                        commString = char
+                    }
+                }
+            }
+        })
+        return commString;
+    }
+    
+    
+    const strs1 = ["цветок", "поток", "хлопок"];
+    console.log(findLongestCommonPrefix(strs1)); 
+    console.log(findLongestCommonPrefix(["собака", "гоночная машина", "машина"])); 
+    console.log(findLongestCommonPrefix(["абрикос", "абрикосовый", "абр"])); 
+    
+    
+    
+    </script>
