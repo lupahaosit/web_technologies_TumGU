@@ -58,6 +58,15 @@
     nums = [2,7,11,15], target = 9
     
     console.log(findSum(nums, target))
+    console.log(findSum([1, 4, 5, 6], 10))
+    console.log(findSum([3, 2, 4], 6))
+    console.log(findSum([3, 3], 6))
+    console.log(findSum([1, 2, 3, 4], 8))
+    console.log(findSum([-1, -2, -3, -4, -5], -8))
+    console.log(findSum([0, 0, 3, 4], 0))
+    console.log(findSum([2, 7, 11, 15], 22))
+    console.log(findSum([5, 75, 25], 100))
+    
     
     function findSum(numberArray, target){
         indexes = []
@@ -96,7 +105,6 @@
                strs.forEach(element => {
                 if(!element.includes(char)){
                     b = false
-                    console.log("not")
                 }
             })
                 if(!b)
@@ -118,7 +126,13 @@
     console.log(findLongestCommonPrefix(strs1)); 
     console.log(findLongestCommonPrefix(["собака", "гоночная машина", "машина"])); 
     console.log(findLongestCommonPrefix(["абрикос", "абрикосовый", "абр"])); 
-    
+    console.log(findLongestCommonPrefix(["программирование", "программный", "программа"])); 
+    console.log(findLongestCommonPrefix(["компьютер", "компания", "ком"])); 
+    console.log(findLongestCommonPrefix(["лед", "ледяной", "ледник"])); 
+    console.log(findLongestCommonPrefix(["дом", "домашний", "дома"])); 
+    console.log(findLongestCommonPrefix(["ананас", "апельсин", "арбуз"])); 
+    console.log(findLongestCommonPrefix(["слово", "словарь", "сложно"])); 
+    console.log(findLongestCommonPrefix(["кино", "кинотеатр", "кинолог"])); 
     
     
     </script>
