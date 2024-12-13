@@ -86,6 +86,7 @@ hr{
         background-repeat: no-repeat;
         background-size: 21% auto, 12% auto;
         z-index: 0;
+        animation: scroll-background-bottom-top 1s linear infinite,scroll-background-top-bottom 5s linear infinite ;
     }
 
 
@@ -100,6 +101,7 @@ hr{
         overflow: hidden;
 
     }
+
 }
 
 @media screen and (min-width: 768px){
@@ -119,7 +121,6 @@ hr{
     }
 
     .first-block-back-image{
-
         width: 100%;
         height: 100%;
         position: relative;
@@ -128,11 +129,55 @@ hr{
         background-repeat: no-repeat;
         background-size: 15% auto, 9% auto;
         z-index: 0;
+        animation: scroll-background-bottom-top-lg 1s linear infinite, scroll-background-top-bottom-lg 10s linear infinite ;
+    }
 
+    .first-block-back-image-left{
+        width: 100%;
+        height: 100%;
+        position: relative;
+        background-image: url("/web_technologies_TumGU/files/Изображения%20для%20бэкграунда/column-left.webp");
+        background-position: 17% 0;
+        background-repeat: no-repeat;
+        background-size: 15% auto;
+        z-index: 0;
+        animation: scroll-background-bottom-top-lg 10s linear infinite;
+    }
+
+    .first-block-back-image-right{
+        width: 100%;
+        height: 100%;
+        top: 10%;
+        left: 12%;
+        position: relative;
+        background-image: url("/web_technologies_TumGU/files/Изображения%20для%20бэкграунда/column-right.webp");
+        background-position: 30% 0;
+        background-repeat: no-repeat;
+        background-size: 9% auto;
+        z-index: 0;
+        animation: scroll-background-top-bottom-lg 10s linear infinite ;
+    }
+
+    @keyframes scroll-background-bottom-top-lg {
+        0% {
+            background-position: 17% 0, 30% 0; /* Начальная позиция */
+        }
+        100% {
+            background-position: 17% 100%, 30% 100%; /* Конечная позиция */
+        }
+    }
+    @keyframes scroll-background-top-bottom-lg {
+        0% {
+            background-position: 17% 100%, 30% 100%; /* Начальная позиция */
+        }
+        100% {
+            background-position: 17% 0, 30% 0; /* Конечная позиция */
+        }
     }
 
 
 }
+
 
 @media screen and (max-width: 424px){
 
@@ -174,6 +219,7 @@ hr{
         background-repeat: no-repeat;
         background-size: 60% auto, 37% auto;
         z-index: 0;
+        animation: scroll-background-bottom-top 1s linear infinite,scroll-background-top-bottom 5s linear infinite ;
     }
 
     .bg-image-size-block{
@@ -187,5 +233,4 @@ hr{
 
     }
 }
-
 
