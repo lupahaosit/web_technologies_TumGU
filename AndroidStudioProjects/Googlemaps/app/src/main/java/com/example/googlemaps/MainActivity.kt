@@ -7,10 +7,9 @@ import android.location.Location
 import android.os.Bundle
 import android.widget.Toast
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.Context
-import android.media.Image
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
+import android.content.Intent
 import android.os.Looper
 import android.util.Log
 import android.view.View
@@ -20,23 +19,24 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.SpinnerAdapter
 import android.widget.TextView
-import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.Text
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.googlemaps.Repositories.CityRepository
 import com.example.googlemaps.Repositories.CountryRepository
 import com.example.googlemaps.Repositories.SessionRepository
 import com.example.googlemaps.Repositories.SettingsRepository
 import com.example.googlemaps.Repositories.UsersRepository
+import com.example.googlemaps.Services.globalMap
 import com.example.googlemaps.entities.City
 import com.example.googlemaps.entities.Country
 import com.example.googlemaps.entities.Session
@@ -66,18 +66,13 @@ import com.google.maps.android.SphericalUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
-import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
-import java.util.Dictionary
 import java.util.HashMap
-import java.util.Locale
 
 class CountryViewModel(application: Application) : AndroidViewModel(application){
 
@@ -198,33 +193,38 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
     //endregion
 
     //region start variables
-    lateinit var map: GoogleMap
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
     private var x = 0.003
-    private lateinit var lastLocation: Location
     private var currentMarker : Marker? = null
     private var totalDistance : Double = 0.0
     private var isProjectStarted = false
     private var auth = Firebase.auth
     private var spinnerElements = arrayOf("метр", "фут")
+    private var database = Firebase.database.reference
+    private val coroutineScope  = CoroutineScope(Dispatchers.IO)
+    private val polylinePoints = mutableListOf<Polyline>()
+    private var justStarted = true
+    private var unitOfDistance = 0.0;
+    private var stackOfViews = ArrayDeque<View>();
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var country : Country
     private lateinit var city : City
     private lateinit var applicationUser : Users
     private lateinit var userSettings : Settings
-    private var database = Firebase.database.reference
-    private val coroutineScope  = CoroutineScope(Dispatchers.IO)
+    private lateinit var lastLocation: Location
     private lateinit var session: Session
     private lateinit var currentLatLng : LatLng
     private lateinit var polyline : PolylineOptions
     private lateinit var currentPolyline : Polyline
-    private val polylinePoints = mutableListOf<Polyline>()
-    private var justStarted = true
+    private lateinit var map: GoogleMap
     companion object {
         private const val LOCATION_PERMISSION_CODE = 1
     }
     var permissionChecked = false
-
     //endregion
+
+
 
     //region start variables with delegates
     private val locationPermissionRequest = registerForActivityResult(
@@ -233,6 +233,17 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
         permission ->
         if(permission[Manifest.permission.ACCESS_FINE_LOCATION] == true){
             startLocationUpdates()
+        }
+    }
+
+    private val locationReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val latitude = intent?.getDoubleExtra("latitude", 0.0) ?: return
+            val longitude = intent.getDoubleExtra("longitude", 0.0)
+            val distance = intent.getDoubleExtra("totalDistance", 0.0)
+
+            val location = LatLng(latitude, longitude)
+            updateLocationOnMap(latitude, longitude)
         }
     }
 //endregion
@@ -255,40 +266,40 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
         sessionsViewModel = ViewModelProvider(this)[SessionsViewModel::class]
         //logOut()
         //setStartValues()
-        var z = cityViewModel.repository.getAllCitiesList().count()
-        if (z == 0){
-            getDataOnFirstStart()
-        }
-        //logOut()
-        val currentuser = auth.currentUser
-        if (currentuser!= null){
-            var z = usersViewModel.repository.getUserByEmail(currentuser!!.email.toString())
-            applicationUser = z
-            userSettings = settingsViewModel.repository.getUsersSettings(applicationUser.email)
-            showApplicationView()
-        }
-        else{
-            toLoginPage()
-        }
 
+
+        lifecycleScope.launch {
+            val cityCount = cityViewModel.repository.getAllCitiesList().count()
+            if (cityCount == 0) {
+                getDataOnFirstStart() // suspend-функция
+            }
+
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                val user = usersViewModel.repository.getUserByEmail(currentUser.email.toString())
+                if (user != null) {
+                    applicationUser = user
+                    userSettings = settingsViewModel.repository.getUsersSettings(applicationUser.email)
+                    showApplicationView()
+                    setUnitOfDistanceValue()
+                    fullFillChampionsData()
+                    setUpObservers()
+                } else {
+                    toLoginPage()
+                }
+            } else {
+                toLoginPage()
+            }
+        }
     }
 
     private fun showApplicationView() {
         setContentView(R.layout.activity_main)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        setHeaderButtons()
         mapFragment.getMapAsync(this)
         setMapButtons()
-        setHeaderButtons()
-    }
 
-    private fun reloadMapFragment() {
-        val fragment = SupportMapFragment.newInstance()
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.map, fragment)
-            .commit()
-        //onMapReady(map)
-        fragment.getMapAsync (this)
-        startLocationUpdates()
     }
 
     private fun toRegisterPage() {
@@ -413,6 +424,14 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
     private fun login() {
         var email = findViewById<EditText>(R.id.editTextTextEmailAddress).text
         var password = findViewById<EditText>(R.id.editTextTextPassword).text
+        if (email.isEmpty() || password.isEmpty()){
+            Toast.makeText(
+                baseContext,
+                "Заполните все поля",
+                Toast.LENGTH_SHORT,
+            ).show()
+            return
+        }
         auth.signInWithEmailAndPassword(email.toString(), password.toString())
             .addOnCompleteListener(this){
                 task -> if(task.isSuccessful){
@@ -423,7 +442,7 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
                     var z = settingsViewModel.repository.getUsersSettings(applicationUser.email)
                     userSettings = z
                     showApplicationView()
-                    reloadMapFragment()
+                    fullFillChampionsData()
             }else{
                 Log.d("Error login", "Email of Paswword incorrect on login")
                 Toast.makeText(
@@ -456,7 +475,7 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
                         settingsViewModel.repository.setUsersSettings(userSettings)
                         addCurrentSettings()
                         showApplicationView()
-                        reloadMapFragment()
+                        fullFillChampionsData()
                     }
                     else{
                         Toast.makeText(
@@ -479,6 +498,8 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         checkPermission()
+        globalMap.map = map
+
     }
 
     private fun checkPermission(){
@@ -501,10 +522,10 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
             override fun onLocationResult(p0: LocationResult) {
                 for (location in p0.locations) {
                     updateLocationOnMap(location)
-
                 }
             }
         }
+
         if (ActivityCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
@@ -514,10 +535,10 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
 
     }
 
-    private fun updateLocationOnMap(location : Location) {
+    private fun updateLocationOnMap(latitude : Double, longitude : Double ) {
 
         var  previousPosition : LatLng? = null
-        currentLatLng = LatLng(location.latitude, location.longitude)
+        currentLatLng = LatLng(latitude, longitude)
         if (justStarted){
             focusCamera()
             justStarted = false
@@ -528,7 +549,6 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
         currentMarker?.remove()
         currentMarker = map.addMarker(MarkerOptions().position(currentLatLng))
         if (isProjectStarted) {
-
             previousPosition?.let {
                 polyline = PolylineOptions().add(previousPosition, currentLatLng)
                 polylinePoints.add( map.addPolyline(polyline))
@@ -537,12 +557,9 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
                     currentLatLng
                 )
                 val view = findViewById<TextView>(R.id.textView3)
-                view.setText("Преодоленное расстояние: ${totalDistance.toLong().toString()} ${userSettings.distanceUnit}")
+                view.setText("Преодоленное расстояние: ${totalDistance.toLong()} ${userSettings.distanceUnit}")
             }
         }
-
-
-
     }
 
     private fun setMapButtons(){
@@ -592,10 +609,11 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
 
     private fun setHeaderButtons(){
         val historyButton = findViewById<Button>(R.id.historyButton)
-        val userName = findViewById<TextView>(R.id.userNameView)
-        val imageView = findViewById<ImageView>(R.id.settingButton)
-
-        userName.text = applicationUser.name
+        //val userName = findViewById<TextView>(R.id.userNameView)
+        val settingsView = findViewById<ImageView>(R.id.settingButton)
+        var championsButton = findViewById<ImageView>(R.id.championsButton)
+        var toMapButton = findViewById<TextView>(R.id.toMapButton)
+        //userName.text = applicationUser.name
 
         historyButton.setOnClickListener(object : OnClickListener{
             override fun onClick(v: View?) {
@@ -603,12 +621,25 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
             }
         })
 
-        imageView.setOnClickListener(object : OnClickListener{
+        settingsView.setOnClickListener(object : OnClickListener{
             override fun onClick(v: View?) {
                 toSettingsPage()
             }
+        })
+
+        championsButton.setOnClickListener(object : OnClickListener{
+            override fun onClick(v: View?) {
+                toChampionsPage()
+            }
+        })
+
+        toMapButton.setOnClickListener(object : OnClickListener{
+            override fun onClick(v: View?) {
+                toMapButton()
+            }
 
         })
+
     }
 
     private fun <T> verticalSpinnerAdapter(items : List<T>) : SpinnerAdapter{
@@ -617,21 +648,37 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
         return adapter
     }
 
-    private fun toHistoryPage(){
+    private fun toChampionsPage(){
+        var championsLayout = findViewById<View>(R.id.championsOverlay)
+        if(checkViewsAmount()){
+            stackOfViews.last().visibility = View.GONE
+        }
+        championsLayout.visibility =  View.VISIBLE
+        stackOfViews.add(championsLayout)
+    }
 
+    private fun toHistoryPage(){
+        var historyView = findViewById<View>(R.id.historyOverlay)
+        if(checkViewsAmount()){
+            stackOfViews.last().visibility = View.GONE
+        }
+        historyView.visibility = View.VISIBLE
+        stackOfViews.add(historyView)
     }
 
     private fun toSettingsPage(){
-        if (isProjectStarted){
-            val startButton = findViewById<Button>(R.id.startButton)
-            startButton.performClick()
-        }
-        setContentView(R.layout.settings_layout)
-//        setCountryCityButtons()
         val unitSpinner = findViewById<Spinner>(R.id.unitOfMeasurementSpinner)
         var SpinnerAdapter = verticalSpinnerAdapter(spinnerElements.toList())
         unitSpinner.adapter = SpinnerAdapter
+        var view = findViewById<View>(R.id.settingsOverlay)
+        if(checkViewsAmount()){
+            stackOfViews.last().visibility = View.GONE
+        }
+        stackOfViews.add(view)
+        view.visibility = View.VISIBLE
         val logoutButton = findViewById<Button>(R.id.logoutButton)
+
+
         logoutButton.setOnClickListener(object : OnClickListener{
             override fun onClick(v: View?) {
                 logOut()
@@ -641,10 +688,13 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
         val saveButton = findViewById<Button>(R.id.saveChanges)
         saveButton.setOnClickListener(object : OnClickListener{
             override fun onClick(v: View?) {
-                saveChanges(userEmail = applicationUser.email!!)
+                saveChanges(userEmail = applicationUser.email)
             }
-
         })
+    }
+
+    private fun toMapButton(){
+        stackOfViews.last().visibility = View.GONE
     }
 
     private fun saveChanges(userEmail : String){
@@ -653,14 +703,71 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
         userSettings.distanceUnit = unitSpinner.selectedItem.toString()
         addCurrentSettings()
         settingsViewModel.repository.updateUserSettings(userSettings)
-        showApplicationView()
-        reloadMapFragment()
+        findViewById<View>(R.id.settingsOverlay).visibility = View.GONE
+    }
+
+    private fun fullFillChampionsData(){
+
+        var sessions = sessionsViewModel.repository.getAllSessions().sortedByDescending { it.distance }
+        if (sessions.count() > 10){
+            sessions = sessions.take(10)
+        }
+        val championsView = findViewById<LinearLayout>(R.id.championsContainer)
+        sessions.forEachIndexed{
+            index, session ->
+            val textView = TextView(this).apply {
+                var user = usersViewModel.repository.getAllUsers().first{it.email == session.userEmail}
+                text = "${index + 1}. ${user.name} - ${session.distance / unitOfDistance} м"
+            }
+            championsView.addView(textView)
+        }
+
+    }
+
+    private fun setUpObservers(){
+        sessionsViewModel.settingsList.observe(this){
+            userSessions -> fullFillHistoryOverlay(userSessions)
+        }
+    }
+
+    private fun fullFillHistoryOverlay(userSessions : List<Session>){
+        var sessionsView = findViewById<LinearLayout>(R.id.historyContainer)
+        sessionsView.removeAllViews()
+        userSessions.filter { it.userEmail == applicationUser.email }.forEachIndexed{
+                    index, session ->
+                val textView = TextView(this).apply {
+                    text = "${index + 1}. ${applicationUser.name} - ${session.distance / unitOfDistance} м"
+                }
+            sessionsView.addView(textView)
+        }
+    }
+
+    private fun setUnitOfDistanceValue(){
+        if (userSettings.distanceUnit == "метр"){
+            unitOfDistance = 1.0
+        }
+        else{
+            unitOfDistance = 0.3048
+        }
+    }
+
+    private fun checkViewsAmount() : Boolean{
+        return stackOfViews.count() > 1
     }
 
     private fun logOut(){
         FirebaseAuth.getInstance().signOut()
         toLoginPage()
     }
+
+
+
+
+
+
+
+
+
 
     private fun firebaseUserAdd(){
         database.child("users").child(applicationUser.email.split('.')[0]).setValue(applicationUser)
@@ -671,64 +778,68 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
     }
 
     private fun firebaseAddSession(){
-        database.child("sessions").child(session.userEmail!!.split('.')[0]).child(session.id.toString()).setValue(session)
+        database.child("sessions").child(session.userEmail!!.split('.')[0]).child(session.startedAt.toString()).setValue(session)
     }
 
-    private fun getDataOnFirstStart() {
+    private suspend fun getDataOnFirstStart() {
         val tempDatabase = FirebaseDatabase.getInstance()
+        coroutineScope {
+            val countriesDeferred = async { fetchCountries(tempDatabase) }
+            val citiesDeferred = async { fetchCities(tempDatabase) }
+            val usersDeferred = async { fetchUsers(tempDatabase) }
+            val sessionsDeferred = async { fetchSessions(tempDatabase) }
+            val settingsDeferred = async { fetchSettings(tempDatabase) }
 
-        // Создаем корутину
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                // Запускаем все асинхронные задачи параллельно
-                fetchCountries(tempDatabase)
-                fetchCities(tempDatabase)
-                fetchUsers(tempDatabase)
-                fetchSessions(tempDatabase)
-                fetchSettings(tempDatabase)
-
-                // Все данные получены, можно продолжать работу
-                Log.d("Data loaded", "All data loaded successfully")
-            } catch (e: Exception) {
-                Log.e("Data loading error", "Error loading data: ${e.message}")
-            }
+            // Ожидаем завершения всех асинхронных операций
+            countriesDeferred.await()
+            citiesDeferred.await()
+            usersDeferred.await()
+            sessionsDeferred.await()
+            settingsDeferred.await()
         }
+        Log.d("success", "all data added")
     }
 
-    private suspend fun fetchCountries(database: FirebaseDatabase) {
+    private  fun fetchCountries(database: FirebaseDatabase) {
         val countryRef = database.getReference("countries")
-        val snapshot = countryRef.get().await()
+        val snapshot = countryRef.get()
+            .addOnSuccessListener {snapshot ->
+                Log.d("Firebase Snapshot", snapshot.value.toString())
         snapshot.children.map {
             it.children.map { item ->
                 item.value
             }
         }.forEach {
+            Log.d("Countries added", "Countries added")
             val id = it[0] as Long
             val name = it[1] as String
             countryViewModel.addData(Country(id = id, name = name))
         }
-        Log.d("Countries added", "Countries added")
-    }
-
-    private suspend fun fetchCities(database: FirebaseDatabase) {
-        val cityRef = database.getReference("cities")
-        val snapshot = cityRef.get().await()
-        snapshot.children.map {
-            it.children.map { item ->
-                item.value
             }
-        }.forEach {
-            val id = it[1] as Long
-            val name = it[2].toString()
-            val countryId = it[0] as Long
-            cityViewModel.addCity(City(id = id, name = name, countryId = countryId))
-        }
-        Log.d("Cities added", "Cities added")
+
     }
 
-    private suspend fun fetchUsers(database: FirebaseDatabase) {
+    private fun fetchCities(database: FirebaseDatabase) {
+        val cityRef = database.getReference("cities")
+        val snapshot = cityRef.get().addOnSuccessListener { snapshot ->
+            snapshot.children.map {
+                it.children.map { item ->
+                    item.value
+                }
+            }.forEach {
+                Log.d("Cities added", "Cities added")
+                val id = it[1] as Long
+                val name = it[2].toString()
+                val countryId = it[0] as Long
+                cityViewModel.addCity(City(id = id, name = name, countryId = countryId))
+            }
+        }
+
+    }
+
+    private fun fetchUsers(database: FirebaseDatabase) {
         val userRef = database.getReference("users")
-        val snapshot = userRef.get().await()
+        val snapshot = userRef.get().addOnSuccessListener { snapshot ->
         if (snapshot.value != null) {
             snapshot.children.map {
                 it.children.map {
@@ -741,14 +852,23 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
                 val email = it[2] as String
                 val name = it[3] as String
                 val password = it[4] as String
-                usersViewModel.repository.addUser(Users(email, name, password, cityId, Date(createdAt)))
+                usersViewModel.repository.addUser(
+                    Users(
+                        email,
+                        password,
+                        name,
+                        cityId,
+                        Date(createdAt)
+                    )
+                )
             }
+        }
         }
     }
 
-    private suspend fun fetchSessions(database: FirebaseDatabase) {
+    private fun fetchSessions(database: FirebaseDatabase) {
         val sessionRef = database.getReference("sessions")
-        val snapshot = sessionRef.get().await()
+        val snapshot = sessionRef.get().addOnSuccessListener { snapshot ->
         if (snapshot.value != null) {
             snapshot.children.map {
                 it.children.map { item ->
@@ -763,15 +883,23 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
                     val startAt = Date(tempStartAt["time"] as Long)
                     val userEmail = it[4] as String
 
-                    sessionsViewModel.repository.addSession(Session(startAt, distance.toInt(), userEmail, endAt))
+                    sessionsViewModel.repository.addSession(
+                        Session(
+                            startAt,
+                            distance.toInt(),
+                            userEmail,
+                            endAt
+                        )
+                    )
                 }
+            }
             }
         }
     }
 
-    private suspend fun fetchSettings(database: FirebaseDatabase) {
+    private fun fetchSettings(database: FirebaseDatabase) {
         val settingsRef = database.getReference("settings")
-        val snapshot = settingsRef.get().await()
+        val snapshot = settingsRef.get().addOnSuccessListener { snapshot ->
         if (snapshot.value != null) {
             snapshot.children.map {
                 it.children.map {
@@ -784,13 +912,15 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
                 settingsViewModel.repository.setUsersSettings(Settings(unit, userEmail))
             }
         }
+        }
     }
 
 
     private fun focusCamera(){
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 18f))
     }
-    }
+}
+
     //region internet Check(Ussless at current moment)
 //    private fun checkInterntConnection(context: Context) : Boolean{
 //        var connctionManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
