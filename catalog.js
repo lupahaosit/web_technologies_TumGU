@@ -2,37 +2,41 @@ import { Catalog } from "./src/components/catalog.js"
 
 const renderPostItem = item => `
     <a  
-        href="posts/${item.id}"
+       href="/posts.html?id=${item.id}""
         class="post-item"
     >
         <span class="post-item__title">
             ${item.title}
         </span>
-
         <span class="post-item__body">
             ${item.body}
         </span>
     </a>
 `
 
-const getPostItems = ({ limit, page }) => {
-    return fetch(`https://jsonplaceholder.typicode.com/posts?_limit=${limit}&_page=${page}`)
-        .then(async res => {
-            const total = +res.headers.get('x-total-count')
-            const items = await res.json()
-            return { items, total }
-        })
+const getPostItems = async ({ limit, page }) => {
+    try {
+        const response = await fetch(`https://jsonplaceholder.typicode.com/posts?_limit=${limit}&_page=${page}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch posts');
+        }
+        const total = +response.headers.get('x-total-count');
+        const items = await response.json();
+        return { items, total };
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        throw error;
+    }
 }
 
 const renderPhotoItem = item => `
     <a  
-        href="photos/${item.id}"
+        href="/posts.html?id=${item.id}""
         class="photo-item"
     >
         <span class="photo-item__title">
             ${item.title}
         </span>
-
         <img 
             src=${item.url}
             class="photo-item__image"
@@ -40,25 +44,31 @@ const renderPhotoItem = item => `
     </a>
 `
 
-const getPhotoItems = ({ limit, page }) => {
-    return fetch(`https://jsonplaceholder.typicode.com/photos?_limit=${limit}&_page=${page}`)
-        .then(async res => {
-            const total = +res.headers.get('x-total-count')
-            const items = await res.json()
-            return { items, total }
-        })
+const getPhotoItems = async ({ limit, page }) => {
+    try {
+        const response = await fetch(`https://jsonplaceholder.typicode.com/photos?_limit=${limit}&_page=${page}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch photos');
+        }
+        const total = +response.headers.get('x-total-count');
+        const items = await response.json();
+        return { items, total };
+    } catch (error) {
+        console.error('Error fetching photos:', error);
+        throw error;
+    }
 }
 
 const init = () => {
-    const catalog = document.getElementById('catalog')
+    const catalog = document.getElementById('catalog');
     new Catalog(catalog, { 
         renderItem: renderPostItem,
         getItems: getPostItems
-     }).init()
+    }).init();
 }
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init)
+    document.addEventListener('DOMContentLoaded', init);
 } else {
-    init()
+    init();
 }
